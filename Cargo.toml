@@ -1,6 +1,6 @@
 [package]
 name = "stop-thread"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Solomon Ucko <solly.ucko@gmail.com>"]
 edition = "2018"
 description = "Various ways of stopping threads on various platforms, without requiring the thread to poll."
@@ -9,7 +9,7 @@ keywords = ["thread", "stop", "kill", "terminate", "cross-platform"]
 categories = ["api-bindings", "concurrency", "os::unix-apis", "os::windows-apis"]
 
 [dependencies]
-sig = { version = "1", path = "../sig" }
+#sig = { version = "1", path = "../sig" }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["processthreadsapi"] }
