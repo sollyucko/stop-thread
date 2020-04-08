@@ -50,7 +50,11 @@ cfg_doc! {
     /// Only kills the thread if it has enabled cancellation, then performs cleanup.
     /// See `man pthread_cancel` for more information.
     "# Unix" unix {
-        kill_thread_unix(handle);
+        use std::os::unix::thread::JoinHandleExt;
+        use libc::pthread_cancel;
+
+        let raw_handle = handle.into_pthread_t();
+        pthread_cancel(raw_handle);
     }
 
     /// Uses u32::MAX as the exit code.
@@ -61,7 +65,7 @@ cfg_doc! {
     /// See <https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread>
     /// for more information.
     "# Windows" windows {
-        kill_thread_windows(handle, u32::MAX);
+        kill_thread_exit_code(handle, u32::MAX);
     }
 }
 
@@ -74,9 +78,9 @@ cfg_doc! {
     ///
     /// Only kills the thread if it has enabled cancellation, then performs cleanup.
     /// See `man pthread_cancel` for more information.
-    [allow(unused_variables)]
     "# Unix" unix {
-        kill_thread_unix(handle);
+        #![allow(unused_variables)]
+        kill_thread(handle);
     }
 
     /// ## Safety
@@ -84,41 +88,6 @@ cfg_doc! {
     /// Forcibly and immediately stops the thread, without any cleanup.
     /// See <https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread>
     /// for more information.
-    "# Windows" windows {
-        kill_thread_windows(handle, exit_code);
-    }
-}
-
-cfg_doc! {
-    /// Kills the thread using `pthread_cancel`.
-    ///
-    /// # Safety
-    ///
-    /// Only kills the thread if it has enabled cancellation, then performs cleanup.
-    /// See `man pthread_cancel` for more information.
-
-    decl: [pub unsafe fn kill_thread_unix<T>(handle: JoinHandle<T>)]
-
-    "# Unix" unix {
-        use std::os::unix::thread::JoinHandleExt;
-        use libc::pthread_cancel;
-
-        let raw_handle = handle.into_pthread_t();
-        pthread_cancel(raw_handle);
-    }
-}
-
-cfg_doc! {
-    /// Kills the thread using `TerminateThread`, specifying the thread's exit code.
-    ///
-    /// # Safety
-    ///
-    /// Forcibly and immediately stops the thread, without any cleanup.
-    /// See <https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread>
-    /// for more information.
-
-    decl: [pub unsafe fn kill_thread_windows<T>(handle: JoinHandle<T>, exit_code: u32)]
-
     "# Windows" windows {
         use std::os::windows::io::IntoRawHandle;
         use winapi::um::processthreadsapi::TerminateThread;
