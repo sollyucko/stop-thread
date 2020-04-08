@@ -1,6 +1,6 @@
 [package]
 name = "stop-thread"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Solomon Ucko <solly.ucko@gmail.com>"]
 edition = "2018"
 description = "Various ways of stopping threads on various platforms, without requiring the thread to poll."
@@ -8,6 +8,7 @@ license = "CC0-1.0"
 keywords = ["thread", "stop", "kill", "terminate", "cross-platform"]
 categories = ["api-bindings", "concurrency", "os::unix-apis", "os::windows-apis"]
 documentation = "https://docs.rs/stop-thread"
+repository = "https://github.com/sollyucko/stop-thread"
 
 [dependencies]
 #sig = { version = "1", path = "../sig" }
