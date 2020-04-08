@@ -17,7 +17,7 @@ macro_rules! unbracket {
 }
 
 macro_rules! cfg_doc {
-    ($(#[doc=$doc0:literal])+ decl: $decl:tt $($($(#[doc=$doc1:literal])+)? $([$attr:meta])* $cfglabel:literal $cfg:tt $body:tt)*) => {
+    ($(#[doc=$doc0:literal])+ decl: $decl:tt $($($(#[doc=$doc1:literal])+)? $cfglabel:literal $cfg:tt $body:tt)*) => {
         unbracket! {_ []
             #[cfg(doc)]
             #[doc(cfg(any($($cfg),*)))]
@@ -32,7 +32,6 @@ macro_rules! cfg_doc {
 
             $(
                 #[cfg(all(not(doc), $cfg))]
-                $(#[$attr])*
                 @unbracket $decl
                     $body
             )*
@@ -50,6 +49,8 @@ cfg_doc! {
     /// Only kills the thread if it has enabled cancellation, then performs cleanup.
     /// See `man pthread_cancel` for more information.
     "# Unix" unix {
+        #![allow(clippy::missing_safety_doc)]
+
         use std::os::unix::thread::JoinHandleExt;
         use libc::pthread_cancel;
 
@@ -65,6 +66,8 @@ cfg_doc! {
     /// See <https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread>
     /// for more information.
     "# Windows" windows {
+        #![allow(clippy::missing_safety_doc)]
+
         kill_thread_exit_code(handle, u32::MAX);
     }
 }
@@ -80,6 +83,8 @@ cfg_doc! {
     /// See `man pthread_cancel` for more information.
     "# Unix" unix {
         #![allow(unused_variables)]
+        #![allow(clippy::missing_safety_doc)]
+
         kill_thread(handle);
     }
 
@@ -89,6 +94,8 @@ cfg_doc! {
     /// See <https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread>
     /// for more information.
     "# Windows" windows {
+        #![allow(clippy::missing_safety_doc)]
+
         use std::os::windows::io::IntoRawHandle;
         use winapi::um::processthreadsapi::TerminateThread;
         use winapi::ctypes::c_void as winapi_c_void;
