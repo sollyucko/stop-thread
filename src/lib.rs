@@ -17,13 +17,12 @@ macro_rules! unbracket {
 }
 
 macro_rules! cfg_doc {
-    ($(#[doc=$doc0:literal])+ decl: $decl:tt $($($(#[doc=$doc1:literal])+)? $cfglabel:literal $cfg:tt $body:tt)*) => {
+    ($(#[doc=$doc0:literal])+ decl: $decl:tt $($($(#[doc=$doc1:literal])+)? if $cfg:tt $body:tt)*) => {
         unbracket! {_ []
             #[cfg(doc)]
             #[doc(cfg(any($($cfg),*)))]
             $(#[doc=$doc0])+
             $($(
-                #[doc=$cfglabel]
                 $(#[doc=$doc1])+
             )?)*
             @unbracket $decl {
@@ -44,11 +43,13 @@ cfg_doc! {
 
     decl: [pub unsafe fn kill_thread<T>(handle: JoinHandle<T>)]
 
+    /// # Unix
+    ///
     /// ## Safety
     ///
     /// Only kills the thread if it has enabled cancellation, then performs cleanup.
     /// See `man pthread_cancel` for more information.
-    "# Unix" unix {
+    if unix {
         #![allow(clippy::missing_safety_doc)]
 
         use std::os::unix::thread::JoinHandleExt;
@@ -58,6 +59,8 @@ cfg_doc! {
         pthread_cancel(raw_handle);
     }
 
+    /// # Windows
+    ///
     /// Uses u32::MAX as the exit code.
     ///
     /// ## Safety
@@ -65,7 +68,7 @@ cfg_doc! {
     /// Forcibly and immediately stops the thread, without any cleanup.
     /// See <https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread>
     /// for more information.
-    "# Windows" windows {
+    if windows {
         #![allow(clippy::missing_safety_doc)]
 
         kill_thread_exit_code(handle, u32::MAX);
@@ -77,23 +80,27 @@ cfg_doc! {
 
     decl: [pub unsafe fn kill_thread_exit_code<T>(handle: JoinHandle<T>, exit_code: u32)]
 
+    /// # Unix
+    ///
     /// ## Safety
     ///
     /// Only kills the thread if it has enabled cancellation, then performs cleanup.
     /// See `man pthread_cancel` for more information.
-    "# Unix" unix {
+    if unix {
         #![allow(unused_variables)]
         #![allow(clippy::missing_safety_doc)]
 
         kill_thread(handle);
     }
 
+    /// # Windows
+    ///
     /// ## Safety
     ///
     /// Forcibly and immediately stops the thread, without any cleanup.
     /// See <https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread>
     /// for more information.
-    "# Windows" windows {
+    if windows {
         #![allow(clippy::missing_safety_doc)]
 
         use std::os::windows::io::IntoRawHandle;
